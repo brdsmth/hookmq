@@ -1,0 +1,14 @@
+version: "3"
+services:
+  api:
+    build: ./cmd/api
+    ports:
+      - "8081:8081"
+  runner:
+    build: ./cmd/runner
+    ports:
+      - "8082:8082"
+  scheduler:
+    build: ./cmd/scheduler
+    ports:
+      - "8083:8083"

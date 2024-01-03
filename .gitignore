@@ -20,4 +20,8 @@
 # Go workspace file
 go.work
 
+# Environment
+.env 
+
+# System
 .DS_Store

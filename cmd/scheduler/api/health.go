@@ -1,4 +1,4 @@
-package api
+package scheduler
 
 import (
 	"log"
@@ -6,7 +6,7 @@ import (
 )
 
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
-	log.Print("[api] /health")
+	log.Print("[scheduler] /health")
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))

@@ -1,4 +1,4 @@
-package api
+package runner
 
 import (
 	"log"
@@ -6,7 +6,7 @@ import (
 )
 
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
-	log.Print("[api] /health")
+	log.Print("[runner] /health")
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))

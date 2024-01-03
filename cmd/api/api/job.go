@@ -15,7 +15,7 @@ type Job struct {
 }
 
 func JobHandler(w http.ResponseWriter, r *http.Request) {
-	log.Print("---> /job")
+	log.Print("[api] /job")
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Job added successfully"))

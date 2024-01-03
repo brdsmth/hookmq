@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"hookmq/cmd/api/api"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -21,8 +22,7 @@ func main() {
 	r.HandleFunc("/health", api.HealthHandler).Methods("GET")
 	r.HandleFunc("/job", api.JobHandler).Methods("GET")
 
-	fmt.Println("api has started...")
-	fmt.Println("api is running on port 8081")
-
-	http.ListenAndServe(":8081", nil)
+	// Start the HTTP server for the API
+	log.Println("api listening on 8081")
+	http.ListenAndServe(":8081", r)
 }

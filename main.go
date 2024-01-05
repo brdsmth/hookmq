@@ -25,7 +25,7 @@ const (
 
 func main() {
 	hookmqCtx := &config.ApplicationContext{
-		Logger: &config.ServiceLogger{Service: "hookmq", ColorPrefix: config.ColorYellow},
+		Logger: &config.ServiceLogger{Service: "hookmq", ColorPrefix: config.ColorCyan},
 	}
 
 	// Connect to SQS
@@ -33,6 +33,9 @@ func main() {
 
 	// Connect to DynamoDB
 	operators.ConnectDynamoDB()
+
+	// Initiate cron
+	operators.RunCron()
 
 	// // Sending messaage to SQS client
 	// db.SQSClient.SendMessage(context.TODO(), "sending sending sending")

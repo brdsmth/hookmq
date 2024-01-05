@@ -4,6 +4,7 @@ package main
 import (
 	"hookmq/api"
 	"hookmq/config"
+	"hookmq/operators"
 	"hookmq/runner"
 	"hookmq/scheduler"
 	"log"
@@ -27,8 +28,11 @@ func main() {
 		Logger: &config.ServiceLogger{Service: "hookmq", ColorPrefix: config.ColorYellow},
 	}
 
-	// // Connect to SQS
-	// db.ConnectSQS()
+	// Connect to SQS
+	operators.ConnectSQS()
+
+	// Connect to DynamoDB
+	operators.ConnectDynamoDB()
 
 	// // Sending messaage to SQS client
 	// db.SQSClient.SendMessage(context.TODO(), "sending sending sending")

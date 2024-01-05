@@ -1,5 +1,5 @@
-// internal/sqs.go
-package db
+// operators/sqs.go
+package operators
 
 import (
 	"context"
@@ -43,9 +43,9 @@ func ConnectSQS() {
 	}
 
 	client := sqs.NewFromConfig(cfg)
-	queueURL := localConfig.ReadEnv("HOOKMQ_SQS_URL")
+	queueURL := localConfig.ReadEnv("SQS_URL")
 	if queueURL == "" {
-		log.Fatal("HOOKMQ_SQS_URL environment variable not set")
+		log.Fatal("SQS_URL environment variable not set")
 	}
 
 	// Create an instance of SQSQueue

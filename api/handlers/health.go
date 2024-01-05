@@ -7,12 +7,11 @@ import (
 
 // Now, your handlers can use the logger from the context
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
-
-	serviceCtx := &config.ApplicationContext{
+	apiCtx := &config.ApplicationContext{
 		Logger: &config.ServiceLogger{Service: "api", ColorPrefix: config.ColorGreen},
 	}
+	apiCtx.Logger.Log("--> /health")
 
-	serviceCtx.Logger.Log("hello")
 	// Handle the request
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("API OK"))

@@ -10,4 +10,5 @@ import (
 func RegisterApiRoutes(r *mux.Router) {
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/health", handlers.HealthHandler).Methods("GET")
+	apiRouter.HandleFunc("/queue", handlers.Queue).Methods("POST")
 }

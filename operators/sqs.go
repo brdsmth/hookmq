@@ -10,6 +10,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 )
 
@@ -33,13 +34,20 @@ func NewSQS(client *sqs.Client, queueURL string, deadLetterQueueUrl string) *SQS
 
 // ConnectSQS initializes and sets up an SQS client
 func ConnectSQS() {
-	awsConfigProfile := localConfig.ReadEnv("AWS_CONFIG_PROFILE")
-	if awsConfigProfile == "" {
-		log.Fatal("AWS_CONFIG_PROFILE environment variable not set")
+	// Retrieve AWS credentials from environment variables
+	awsAccessKeyID := localConfig.ReadEnv("AWS_ACCESS_KEY_ID")
+	awsSecretAccessKey := localConfig.ReadEnv("AWS_SECRET_ACCESS_KEY")
+	awsDefaultRegion := localConfig.ReadEnv("AWS_DEFAULT_REGION")
+
+	// Check if the necessary environment variables are set
+	if awsAccessKeyID == "" || awsSecretAccessKey == "" {
+		log.Fatal("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables must be set")
 	}
+
+	// Load AWS configuration
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithSharedConfigProfile(awsConfigProfile),
-		config.WithRegion("us-east-1"),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccessKeyID, awsSecretAccessKey, "")),
+		config.WithRegion(awsDefaultRegion),
 	)
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)

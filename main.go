@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"hookmq/api"
 	"hookmq/config"
 	"hookmq/operators"
@@ -52,9 +53,15 @@ func main() {
 	// Register API routes with the logger from the 'api' package
 	api.RegisterApiRoutes(r)
 
-	hookmqCtx.Logger.Log("listening on 8081")
-	err := http.ListenAndServe(":8081", r)
+	// Start the HTTP server for the publisher microservice
+	port := config.ReadEnv("PORT")
+	if port == "" {
+		port = "8081" // default
+	}
+
+	hookmqCtx.Logger.Log(fmt.Sprintf("listening on port %s", port))
+	err := http.ListenAndServe(":"+port, r)
 	if err != nil {
-		log.Fatalf("Failed to start hookmq on 8081: %v\n", err)
+		log.Fatalf("Failed to start hookmq on %s: %v\n", port, err)
 	}
 }

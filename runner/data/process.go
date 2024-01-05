@@ -2,7 +2,7 @@ package data
 
 import (
 	"context"
-	"hookmq/internal/db"
+	"hookmq/db"
 	"log"
 )
 

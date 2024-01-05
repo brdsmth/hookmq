@@ -25,3 +25,9 @@ go.work
 
 # System
 .DS_Store
+
+# Air (reloading) files
+tmp/
+
+# Build files
+build/

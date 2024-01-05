@@ -3,6 +3,7 @@ package operators
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	localConfig "hookmq/config"
 	"log"
@@ -23,10 +24,15 @@ type Job struct {
 	Payload   interface{} `dynamodbav:"Payload"` // Flexible for any JSON structure
 	RowKey    string      `dynamodbav:"RowKey"`
 	URL       string      `dynamodbav:"URL"`
+	Status    string      `json:"Status"`
 }
 
 // ConnectDynamoDB initializes and sets up a DynamoDB client
 func ConnectDynamoDB() {
+	hookmqCtx := &localConfig.ApplicationContext{
+		Logger: &localConfig.ServiceLogger{Service: "hookmq", ColorPrefix: localConfig.ColorCyan},
+	}
+
 	/*
 		When using the AWS SDK for Go, if you have set the environment variables in (~/.aws/config)
 		the SDK will automatically use these credentials. You don't need to manually specify them in your code.
@@ -57,7 +63,7 @@ func ConnectDynamoDB() {
 	if err != nil {
 		log.Fatalf("Failed to connect to DynamoDB: %v", err)
 	} else {
-		log.Print("Connected to DynamodDB successfully")
+		hookmqCtx.Logger.Log("connected to dynamodb")
 	}
 }
 
@@ -101,4 +107,77 @@ func GetDueJobsFromDynamoDB() ([]Job, error) {
 	// 			-> Use %+v for more detailed struct printing
 	// log.Printf("Jobs: %+v", jobs)
 	return jobs, nil
+}
+
+func WriteToProcessed(job Job) {
+	hookmqCtx := &localConfig.ApplicationContext{
+		Logger: &localConfig.ServiceLogger{Service: "hookmq", ColorPrefix: localConfig.ColorCyan},
+	}
+
+	// Marshal the Payload to a JSON string
+	postProcessPayloadBytes, err := json.Marshal(job.Payload)
+	if err != nil {
+		log.Printf("error processing job:\t%s", job.RowKey)
+		return
+	}
+	postProcessPayloadString := string(postProcessPayloadBytes)
+	currentTime := time.Now().Format(time.RFC3339)
+
+	item := map[string]types.AttributeValue{
+		"RowKey":     &types.AttributeValueMemberS{Value: job.RowKey},
+		"JobID":      &types.AttributeValueMemberS{Value: job.JobID},
+		"Payload":    &types.AttributeValueMemberS{Value: postProcessPayloadString},
+		"URL":        &types.AttributeValueMemberS{Value: job.URL},
+		"Status":     &types.AttributeValueMemberS{Value: job.Status},
+		"ExecutedAt": &types.AttributeValueMemberS{Value: currentTime},
+	}
+
+	// Write the updated job to the `processed` Table
+	dynamoDBProcessedTable := localConfig.ReadEnv("DYNAMODB_PROCESSED_TABLE")
+	if dynamoDBProcessedTable == "" {
+		log.Fatal("DYNAMODB_PROCESSED_TABLE environment variable not set")
+	}
+	processedTableName := dynamoDBProcessedTable
+	_, err = DynamoClient.PutItem(context.Background(), &dynamodb.PutItemInput{
+		TableName: aws.String(processedTableName),
+		Item:      item,
+	})
+	if err != nil {
+		hookmqCtx.Logger.Log(fmt.Sprintf("failed to write to processed dynamodb: %v", err))
+		return
+	}
+
+	hookmqCtx.Logger.Log(fmt.Sprintf("processed job:\t\t\t%s", job.JobID))
+
+	DeleteFromQueue(job)
+}
+
+func DeleteFromQueue(job Job) {
+
+	hookmqCtx := &localConfig.ApplicationContext{
+		Logger: &localConfig.ServiceLogger{Service: "hookmq", ColorPrefix: localConfig.ColorCyan},
+	}
+
+	// Define the table from which to delete the item
+	dynamoDBQueueTable := localConfig.ReadEnv("DYNAMODB_QUEUE_TABLE")
+	if dynamoDBQueueTable == "" {
+		log.Fatal("DYNAMODB_QUEUE_TABLE environment variable not set")
+	}
+
+	// Define the key of the item to be deleted
+	key := map[string]types.AttributeValue{
+		"RowKey":    &types.AttributeValueMemberS{Value: job.RowKey},
+		"ExecuteAt": &types.AttributeValueMemberS{Value: job.ExecuteAt},
+	}
+
+	// Perform the deletion
+	_, err := DynamoClient.DeleteItem(context.Background(), &dynamodb.DeleteItemInput{
+		TableName: aws.String(dynamoDBQueueTable),
+		Key:       key,
+	})
+	if err != nil {
+		hookmqCtx.Logger.Log(fmt.Sprintf("failed to delete item from %s: %v", dynamoDBQueueTable, err))
+	} else {
+		hookmqCtx.Logger.Log(fmt.Sprintf("successfully deleted from db\t%s from %s", job.RowKey, dynamoDBQueueTable))
+	}
 }

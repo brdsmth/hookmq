@@ -25,7 +25,7 @@ type Job struct {
 	Status    string      `json:"Status"`
 }
 
-func Queue(w http.ResponseWriter, r *http.Request) {
+func QueueHandler(w http.ResponseWriter, r *http.Request) {
 	apiCtx := &localConfig.ApplicationContext{
 		Logger: &localConfig.ServiceLogger{Service: "api", ColorPrefix: localConfig.ColorGreen},
 	}

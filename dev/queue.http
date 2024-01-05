@@ -6,6 +6,6 @@ content-type: application/json
         "recipient": "+18777804236",
         "content": "Long live for coding too"
     },
-    "url": "http://localhost:8080/send",
+    "url": "http://localhost:8080/api/test",
     "executeAt": "2023-12-17T19:19:10Z"
 }

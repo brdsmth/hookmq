@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"hookmq/api"
 	"hookmq/config"
 	"hookmq/operators"
@@ -35,7 +36,12 @@ func main() {
 	operators.ConnectDynamoDB()
 
 	// Initiate cron
-	operators.RunCron()
+	scheduler.RunCron()
+
+	// Start the SQS listener in a goroutine
+	go func() {
+		runner.Listener(context.Background())
+	}()
 
 	// // Sending messaage to SQS client
 	// db.SQSClient.SendMessage(context.TODO(), "sending sending sending")
@@ -45,8 +51,6 @@ func main() {
 
 	// Register API routes with the logger from the 'api' package
 	api.RegisterApiRoutes(r)
-	runner.RegisterRunnerRoutes(r)
-	scheduler.RegisterSchedulerRoutes(r)
 
 	hookmqCtx.Logger.Log("listening on 8081")
 	err := http.ListenAndServe(":8081", r)

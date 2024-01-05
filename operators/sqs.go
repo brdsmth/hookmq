@@ -3,6 +3,7 @@ package operators
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 
 	localConfig "hookmq/config"
@@ -14,17 +15,19 @@ import (
 
 // SQSQueue represents a wrapper for the SQS client
 type SQSQueue struct {
-	Client   *sqs.Client
-	QueueURL string
+	Client             *sqs.Client
+	QueueURL           string
+	DeadLetterQueueURL string
 }
 
 var SQSClient *SQSQueue
 
 // New creates a new SQSQueue
-func NewSQS(client *sqs.Client, queueURL string) *SQSQueue {
+func NewSQS(client *sqs.Client, queueURL string, deadLetterQueueUrl string) *SQSQueue {
 	return &SQSQueue{
-		Client:   client,
-		QueueURL: queueURL,
+		Client:             client,
+		QueueURL:           queueURL,
+		DeadLetterQueueURL: deadLetterQueueUrl,
 	}
 }
 
@@ -48,8 +51,13 @@ func ConnectSQS() {
 		log.Fatal("SQS_URL environment variable not set")
 	}
 
+	deadLetterQueueURL := localConfig.ReadEnv("SQS_DL_URL")
+	if queueURL == "" {
+		log.Fatal("SQS_DL_URL environment variable not set")
+	}
+
 	// Create an instance of SQSQueue
-	SQSClient = NewSQS(client, queueURL)
+	SQSClient = NewSQS(client, queueURL, deadLetterQueueURL)
 }
 
 // SendMessage sends a message to the SQS queue
@@ -65,8 +73,8 @@ func (q *SQSQueue) SendMessage(ctx context.Context, message string) (*sqs.SendMe
 func (q *SQSQueue) ReceiveMessage(ctx context.Context) (*sqs.ReceiveMessageOutput, error) {
 	input := &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(q.QueueURL),
-		MaxNumberOfMessages: 10, // Adjust based on your needs
-		WaitTimeSeconds:     10, // Adjust based on your needs
+		MaxNumberOfMessages: int32(*aws.Int64(10)),
+		WaitTimeSeconds:     int32(*aws.Int64(20)), // Enable long polling
 	}
 	return q.Client.ReceiveMessage(ctx, input)
 }
@@ -78,4 +86,25 @@ func (q *SQSQueue) DeleteMessage(ctx context.Context, receiptHandle *string) (*s
 		ReceiptHandle: receiptHandle,
 	}
 	return q.Client.DeleteMessage(ctx, input)
+}
+
+// SendToDeadLetterQueue sends a message to the Dead Letter Queue defined in env
+func (q *SQSQueue) SendToDeadLetterQueue(ctx context.Context, job Job) (*sqs.SendMessageOutput, error) {
+
+	// Serialize the job or create a message
+	message, err := json.Marshal(job)
+	if err != nil {
+		log.Printf("Failed to marshal job for dead letter queue: %v", err)
+		return nil, err // return the error here
+	}
+
+	// Convert message to a string before using with aws.String
+	messageStr := string(message)
+
+	input := &sqs.SendMessageInput{
+		MessageBody: aws.String(messageStr), // use the string version of the message
+		QueueUrl:    aws.String(q.DeadLetterQueueURL),
+	}
+
+	return q.Client.SendMessage(ctx, input)
 }

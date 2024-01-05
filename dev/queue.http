@@ -4,8 +4,8 @@ content-type: application/json
 {
     "payload": {
         "recipient": "+18777804236",
-        "content": "Long live for coding too"
+        "content": "It's go time"
     },
-    "url": "http://localhost:8080/api/test",
-    "executeAt": "2023-12-17T19:19:10Z"
+    "url": "http://localhost:8085/send",
+    "executeAt": "2024-01-05T13:42:00Z"
 }

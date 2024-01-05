@@ -45,7 +45,7 @@ func RunCron() {
 			if err != nil {
 				schedulerCtx.Logger.Log(fmt.Sprintf("failed to publish job to SQS: %v", err))
 			} else {
-				schedulerCtx.Logger.Log(fmt.Sprintf("published to SQS:\t\t%s", job.RowKey))
+				schedulerCtx.Logger.Log(fmt.Sprintf("published to SQS:\t%s", job.RowKey))
 			}
 		}
 

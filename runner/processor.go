@@ -55,7 +55,7 @@ func Processor(job operators.Job) {
 		return
 	}
 
-	runnerCtx.Logger.Log(fmt.Sprintf("sent:\t\t\t%s with status %s", job.JobID, status))
+	runnerCtx.Logger.Log(fmt.Sprintf("sent:\t\t\t\t%s with status %s", job.JobID, status))
 
 	// Update DynamoDB
 	// Set the status of the job after the POST request is made

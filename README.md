@@ -1,6 +1,10 @@
 ## Introduction
 
-## Usage
+**HookMQ** emerged to efficiently manage job queues, including those with future execution dates.
+
+## Architecture
+
+## Example
 
 ```javascript
 POST https://localhost:8081/api/queue HTTP/1.1
@@ -14,7 +18,24 @@ content-type: application/json
 
 ```
 
-## Locally
+## Local Development
+
+#### Environment
+
+The following environment variables need to be set in order to run `hookmq` locally.
+
+```
+PORT=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=
+DYNAMODB_QUEUE_TABLE=
+DYNAMODB_PROCESSED_TABLE=
+SQS_URL=
+SQS_DL_URL=
+```
+
+### Usage
 
 ```
 go run main.go

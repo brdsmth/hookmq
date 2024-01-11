@@ -31,3 +31,6 @@ tmp/
 
 # Build files
 build/
+
+# Private test requests
+dev/private/

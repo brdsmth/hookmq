@@ -1,3 +1,19 @@
+## Introduction
+
+## Usage
+
+```javascript
+POST https://localhost:8081/api/queue HTTP/1.1
+content-type: application/json
+
+{
+    payload: { /* customize the payload how you want */ },
+    url: "https://your.server.com/some-action",
+    executeAt: "2024-01-10T02:36:00Z"
+}
+
+```
+
 ## Locally
 
 ```

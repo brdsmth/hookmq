@@ -44,9 +44,6 @@ func main() {
 		runner.Listener(context.Background())
 	}()
 
-	// // Sending messaage to SQS client
-	// db.SQSClient.SendMessage(context.TODO(), "sending sending sending")
-
 	// Initialize Mux router
 	r := mux.NewRouter()
 

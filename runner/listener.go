@@ -9,6 +9,9 @@ import (
 	"time"
 )
 
+/*
+The Listener receives messages from SQS
+*/
 func Listener(ctx context.Context) {
 	runnerCtx := &config.ApplicationContext{
 		Logger: &config.ServiceLogger{Service: "runner", ColorPrefix: config.ColorRed},
@@ -43,8 +46,7 @@ func Listener(ctx context.Context) {
 				// Processs the job - make request to url defined in job
 				Processor(job)
 
-				// Delete the message after processing
-				// Delete the message from the queue
+				// Delete the message from the queue after processing
 				_, delErr := operators.SQSClient.DeleteMessage(ctx, message.ReceiptHandle)
 
 				if delErr != nil {
@@ -56,7 +58,7 @@ func Listener(ctx context.Context) {
 			}
 		}
 
-		// Sleep for a while before next poll (if you want to rate limit the polling)
+		// Sleep for a while before next poll for rate limiting
 		time.Sleep(1 * time.Second)
 	}
 }

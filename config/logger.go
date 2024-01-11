@@ -1,5 +1,4 @@
 // config/logger.go
-
 package config
 
 import (
@@ -26,6 +25,9 @@ type ServiceLogger struct {
 	ColorPrefix string
 }
 
+/*
+The Logger was created to color code log messages from different services
+*/
 func (l *ServiceLogger) Log(message string) {
 	log.Printf("%s%s%s\t%s", l.ColorPrefix, fmt.Sprintf("[%s]", l.Service), ColorReset, message)
 }

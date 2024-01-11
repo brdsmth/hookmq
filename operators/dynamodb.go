@@ -57,7 +57,6 @@ func ConnectDynamoDB() {
 	DynamoClient = dynamodb.NewFromConfig(cfg)
 
 	// "Ping" DynamoDB to confirm connection
-	// The table name to store processed message will be stored in an environment variable
 	dynamoDBQueueTable := localConfig.ReadEnv("DYNAMODB_QUEUE_TABLE")
 	if dynamoDBQueueTable == "" {
 		log.Fatal("DYNAMODB_QUEUE_TABLE environment variable not set")
@@ -73,9 +72,8 @@ func GetDueJobsFromDynamoDB() ([]Job, error) {
 	// Define the current time as the threshold for jobs being due
 	currentTime := time.Now().Format(time.RFC3339)
 
-	// This uses Scan on the sort key which is inefficient
 	// TODO: Update this query to use Global Secondary Index (GSI)
-	// The table name to store processed message will be stored in an environment variable
+	// This uses Scan on the sort key which is inefficient
 	dynamoDBQueueTable := localConfig.ReadEnv("DYNAMODB_QUEUE_TABLE")
 	if dynamoDBQueueTable == "" {
 		log.Fatal("DYNAMODB_QUEUE_TABLE environment variable not set")
@@ -95,7 +93,6 @@ func GetDueJobsFromDynamoDB() ([]Job, error) {
 	// Decode the result items into a slice of Jobs
 	var jobs []Job
 	for _, item := range result.Items {
-		// DEBUG	-> Prints the raw item from the db table
 		var job Job
 		err = attributevalue.UnmarshalMap(item, &job)
 		if err != nil {
@@ -105,9 +102,6 @@ func GetDueJobsFromDynamoDB() ([]Job, error) {
 		jobs = append(jobs, job)
 	}
 
-	// DEBUG 	-> This prints out the jobs that passed the conditional check
-	// 			-> Use %+v for more detailed struct printing
-	// log.Printf("Jobs: %+v", jobs)
 	return jobs, nil
 }
 

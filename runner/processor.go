@@ -22,6 +22,9 @@ func sendHTTPRequest(url string, payloadReader io.Reader) (string, error) {
 	return resp.Status, nil
 }
 
+/*
+The Processer handles each message from SQS and makes the POST reqeust defined in each job
+*/
 func Processor(job operators.Job) {
 	runnerCtx := &config.ApplicationContext{
 		Logger: &config.ServiceLogger{Service: "runner", ColorPrefix: config.ColorRed},

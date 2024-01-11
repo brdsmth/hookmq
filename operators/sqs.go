@@ -103,14 +103,14 @@ func (q *SQSQueue) SendToDeadLetterQueue(ctx context.Context, job Job) (*sqs.Sen
 	message, err := json.Marshal(job)
 	if err != nil {
 		log.Printf("Failed to marshal job for dead letter queue: %v", err)
-		return nil, err // return the error here
+		return nil, err
 	}
 
 	// Convert message to a string before using with aws.String
 	messageStr := string(message)
 
 	input := &sqs.SendMessageInput{
-		MessageBody: aws.String(messageStr), // use the string version of the message
+		MessageBody: aws.String(messageStr),
 		QueueUrl:    aws.String(q.DeadLetterQueueURL),
 	}
 

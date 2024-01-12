@@ -109,4 +109,4 @@ heroku logs --tail -a hookmq
 
 ## Inspiration
 
-This project was mainly coded to the influence of the following albums:
+This project was mainly coded to following albums:
